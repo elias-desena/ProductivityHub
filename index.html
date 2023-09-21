@@ -185,6 +185,10 @@
 
             else if (state == 'uiShown' && event.target !== startButton){
                 startFocusMode();
+                if (!isInFullscreen) {
+                    startFullscreen();
+                    isInFullscreen = true;
+                }
             }
 
             clearTimeout(inactivityTimer);
@@ -192,6 +196,10 @@
                 // Go back to focusMode if no activity for 7 seconds
                 if (state === 'uiShown') {
                     startFocusMode();
+                    if (!isInFullscreen) {
+                        startFullscreen();
+                        isInFullscreen = true;
+                    }
                 }
             }, 7000); // 7 seconds
         });
