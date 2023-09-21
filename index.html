@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProductivityHub</title>
+    <style>
+        /* CSS styles for the timer and button */
+        body {
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #111;
+            font-family: 'Poppins', sans-serif;
+            transition: background-color 1s ease;
+        }
+
+        #timer-container {
+            transition: all 1s ease;
+            text-align: center;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #timer {
+            font-weight: 700;
+            font-size: 5rem;
+            color: #444;
+            text-shadow: 0 0 50px rgba(51, 51, 51, 0.7);
+            transition: color 1s ease; 
+            transition: transform 0.3s ease-in-out,
+        }
+
+        #start-button {
+            font-family: 'Poppins', sans-serif;
+            background-color: #5541d1;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 250ms ease;
+            box-shadow: 0 0 10px rgba(85, 65, 209, 0.5), 0 0 20px rgba(85, 65, 209, 0.5);
+        }
+
+        #start-button:active {
+            transform: scale(0.95); /* Shrink the button when pressed */
+        }
+
+        .glow-button {
+            transition: box-shadow 1s ease-in-out;
+        }
+
+        .glow-button:hover {
+            animation: purple-glow 1.5s ease infinite; /* Start the glow animation on hover */
+        }
+
+        @keyframes purple-glow {
+            0% {
+                box-shadow: 0 0 10px rgba(85, 65, 209, 0.7), 0 0 20px rgba(85, 65, 209, 0.7);
+            }
+            50% {
+                box-shadow: 0 0 20px rgba(85, 65, 209, 0.7), 0 0 30px rgba(85, 65, 209, 0.7);
+            }
+            100% {
+                box-shadow: 0 0 10px rgba(85, 65, 209, 0.7), 0 0 20px rgba(85, 65, 209, 0.7);
+            }
+        }
+
+        @keyframes orange-glow {
+            0% {
+                box-shadow: 0 0 10px rgba(235, 159, 61, 0.7), 0 0 20px rgba(235, 159, 61, 0.7);
+            }
+            50% {
+                box-shadow: 0 0 20px rgba(235, 159, 61, 0.7), 0 0 30px rgba(235, 159, 61, 0.7);
+            }
+            100% {
+                box-shadow: 0 0 10px rgba(235, 159, 61, 0.7), 0 0 20px rgba(235, 159, 61, 0.7);
+            }
+        }
+
+    </style>
+</head>
+<body>
+    <div id="timer-container">
+        <div id="timer">25:00</div>
+        <button id="start-button" class="glow-button">Start</button>
+    </div>
+
+    <script type="text/javascript">
+        // Initialize variables
+        const originalBackgroundColor = window.getComputedStyle(document.body).backgroundColor;
+        const timer = document.getElementById('timer');
+        const startButton = document.getElementById('start-button');
+        let interval;
+        let isRunning = false;
+        let isInFullscreen = false;
+        let state = 'defaultState'; // Initial state
+        let currentTime = (25 * 60); // Current timer time in seconds (25 minutes)
+        console.log('Current state:', state);
+        var inactivityTimer; // Timer for tracking inactivity
+
+
+        // Function to set the state
+        function setState(newState) {
+            state = newState;
+            console.log('Current state:', state);
+        }
+
+        // Function to start the focus mode
+        function startFocusMode() {
+            timer.style.marginTop = "0";
+            document.body.style.backgroundColor = '#000';
+            timer.style.textShadow = '0 0 0px rgba(0, 0, 0, 0)';
+            timer.style.color = '#222';
+            state = 'focusMode';
+            console.log('Current state:', state);
+            document.body.style.cursor = 'none';
+            startButton.style.opacity = 0;
+            setTimeout(function() {
+                startButton.style.display = "none";
+            }, 250)
+
+        }
+
+        // Function to start the UI shown state
+        function startUiShown() {
+            document.body.style.cursor = 'auto';
+            document.body.style.backgroundColor = originalBackgroundColor;
+            startButton.textContent = 'Pause';
+            // Apply the 'uiShown' style
+            timer.style.color = '#444';
+            timer.style.textShadow = '0 0 50px rgba(51, 51, 51, 0.7)';
+            startButton.style.backgroundColor = '#5541d1';
+            startButton.style.color = 'white';
+            startButton.style.opacity = 1;
+            startButton.style.display = 'block';
+            state = 'uiShown'
+            console.log('Current state:', state);
+            startButton.style.animation = 'purple-glow 1.5s ease infinite'; // Apply orange glow animation
+        }
+
+        // Function to pause the timer
+        function pauseTimer() {
+            clearInterval(interval);
+            state = 'timerPause'
+            console.log('Current state:', state);
+            startButton.textContent = 'Resume';
+            startButton.style.backgroundColor = '#eb9f3d';
+            timer.style.color = '#888'
+            startButton.style.animation = 'orange-glow 1.5s ease infinite'; // Apply orange glow animation
+        }
+
+        function startBreak() {
+            clearInterval(interval);
+            timer.textContent = '05:00';
+            isRunning = false;
+            document.body.style.backgroundColor = '#5541d1';
+            notifyCycleComplete();
+            document.body.style.cursor = 'auto';
+            startButton.style.display = 'block';
+            startButton.style.opacity = 1;
+            startButton.textContent = 'Skip';
+            startButton.style.backgroundColor = '#eb9f3d';
+            timer.style.color = '#fff'
+            startButton.style.animation = 'orange-glow 1.5s ease infinite';
+            currentTime = 5 * 60;
+            startTimer(5 * 60);
+            state = 'break';
+            console.log('Current state:', state);
+        }
+
+        // Event listener for body click
+        document.body.addEventListener('click', () => {
+            if (state == 'focusMode' && event.target !== startButton){
+                startUiShown();
+            }
+
+            else if (state == 'uiShown' && event.target !== startButton){
+                startFocusMode();
+            }
+
+            clearTimeout(inactivityTimer);
+            inactivityTimer = setTimeout(() => {
+                // Go back to focusMode if no activity for 7 seconds
+                if (state === 'uiShown') {
+                    startFocusMode();
+                }
+            }, 7000); // 7 seconds
+        });
+
+        // Event listener for start button click
+        startButton.addEventListener('click', () => {
+            clearTimeout(inactivityTimer);
+            if (state == ('defaultState')){
+                startTimer(currentTime);
+                startFocusMode()
+                if (!isInFullscreen) {
+                    startFullscreen();
+                    isInFullscreen = true;
+                }
+            }
+            if (state == ('break')){
+                clearInterval(interval);
+                currentTime = 25 * 60;
+                startTimer(currentTime);
+                startFocusMode()
+                if (!isInFullscreen) {
+                    //startFullscreen();
+                    isInFullscreen = true;
+                }
+            }
+            else if (state == 'uiShown'){
+                pauseTimer();
+            }
+
+            else if (state == 'timerPause'){
+                startTimer(currentTime);
+                startFocusMode()
+            }
+
+
+        });
+
+        // Function to request fullscreen
+        function startFullscreen() {
+            const docElement = document.documentElement;
+            if (docElement.requestFullscreen) {
+                docElement.requestFullscreen().catch(errorHandler);
+            } else if (docElement.mozRequestFullScreen) {
+                docElement.mozRequestFullScreen().catch(errorHandler);
+            } else if (docElement.webkitRequestFullscreen) {
+                docElement.webkitRequestFullscreen().catch(errorHandler);
+            } else if (docElement.msRequestFullscreen) {
+                docElement.msRequestFullscreen().catch(errorHandler);
+            }
+        }
+
+        // Function to handle fullscreen request errors
+        function errorHandler(error) {
+            console.error('Fullscreen request failed:', error);
+        }
+
+        // Function to start the timer
+        function startTimer() {
+            isRunning = true;
+            interval = setInterval(() => {
+                const minutes = Math.floor(currentTime / 60);
+                const seconds = currentTime % 60;
+                const formattedTime = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+                timer.textContent = formattedTime;
+
+                document.title = `ProductivityHub - [${formattedTime}]`;
+
+                if (currentTime <= 0) {
+                    startBreak();
+                }
+                currentTime--;
+            }, 1000);
+        }
+
+        function startBreakTimer() {
+            isRunning = true;
+            interval = setInterval(() => {
+                const minutes = Math.floor(currentTime / 60);
+                const seconds = currentTime % 60;
+                const formattedTime = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+                timer.textContent = formattedTime;
+
+                document.title = `ProductivityHub - [${formattedTime}]`;
+
+                if (currentTime <= 0) {
+                    clearInterval(interval);
+                    startFocusMode();
+                }
+                currentTime--;
+            }, 1000)
+        }
+
+        // Function to notify cycle completion
+        function notifyCycleComplete() {
+            if ('Notification' in window && Notification.permission === 'granted') {
+                const notification = new Notification('Pomodoro Cycle Complete', {
+                    body: 'Take a break!',
+                    icon: 'icon.png'
+                });
+            }
+        }
+    </script>
+</body>
+</html>
