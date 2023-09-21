@@ -1,6 +1,6 @@
 # ProductivityHub - Free and Open Source Pomodoro Timer
 
-![ProductivityHub Logo](logo.png) <!-- If you have a logo, add it here -->
+![ProductivityHub Logo](ProductivityHubTextLogo.png) <!-- If you have a logo, add it here -->
 
 ProductivityHub is a user-friendly Pomodoro Timer designed to help you boost productivity and manage your work sessions effectively. It's completely ad-free, open source, and available for everyone to use. Feel free to contribute to its development!
 
